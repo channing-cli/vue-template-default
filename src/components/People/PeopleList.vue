@@ -2,11 +2,20 @@
   <div>
     <Loading v-if="loading"></Loading>
     <template v-else>
-      peopleList
-      <p v-for="people in peopleList" :key="people.id">{{ people }}</p>
       <button @click="handleSlice">
-        slice
+        SLICE
       </button>
+      <div
+        v-for="people in peopleList"
+        :key="people.id"
+        class="people_info_box"
+      >
+        <p>id: {{ people.id }}</p>
+        <p>name: {{ people.name }}</p>
+        <p>birth: {{ people.birth | formatDate("YYYY年 M月 D日") }}</p>
+        <p>address: {{ people.address }}</p>
+        <p>constellation: {{ people.constellation }}</p>
+      </div>
     </template>
   </div>
 </template>
@@ -55,3 +64,8 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.people_info_box {
+  border-bottom: 1px dashed gray;
+}
+</style>
