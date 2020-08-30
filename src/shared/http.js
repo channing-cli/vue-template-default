@@ -6,8 +6,11 @@ const http = Axios.create({
   headers: {
     Accept: "application/json",
     "X-Requested-With": "Channing-Request",
-    "Cache-Control": "no-cache"
+    "Cache-Control": "no-cache",
+    Pragma: "no-cache",
+    Expires: "-1"
   },
+  withCredentials: true,
   timeout: 60000 // max time of request timeout
 });
 

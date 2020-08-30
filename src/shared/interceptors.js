@@ -1,12 +1,14 @@
 import { http } from "./http";
+
 const err = error => {
-  if (error && error.config && error.config.url === "/people/xxx") {
+  /*对于特定接口进行重新发送请求*/
+  if (error && error.config && error.config.url === "/people/list1") {
     // 设置重置次数，默认为0
     let { config } = error;
     config.__retryCount = config.__retryCount || 0;
     // 判断是否超过了重试次数
     if (config.__retryCount >= 3) {
-      return Promise.reject(err);
+      return Promise.reject(error);
     }
     //重试次数自增
     config.__retryCount += 1;
@@ -21,30 +23,47 @@ const err = error => {
       return http(config);
     });
   }
-  if (error.response) {
-    const { data, status, statusText } = error.response;
-    switch (status) {
-      case 401:
-        console.log({
-          message: "Unauthorized",
-          description: "Authorization verification failed"
-        });
-        console.error(error);
 
+  if (error.response) {
+    console.log("error!!!!!!");
+    console.log(error);
+    console.log(error.statusText);
+    const { data, status, statusText } = error.response;
+    let errorMsg;
+    switch (status) {
+      case 500:
+        errorMsg = {
+          status,
+          statusText,
+          data,
+          message: "服务器开了小差",
+          error
+        };
+        break;
+      case 401:
+        errorMsg = {
+          status,
+          statusText,
+          data,
+          message: "未授权",
+          error
+        };
         break;
       default:
-        console.log({
-          message: statusText,
-          description: (data && data.error) || ""
-        });
-        console.error(error);
-
+        errorMsg = {
+          status,
+          statusText,
+          data,
+          message: "出错了",
+          error
+        };
         break;
     }
+    console.log(errorMsg);
   } else {
     // 请求超时状态
     if (error.message.includes("timeout")) {
-      console.log({
+      alert({
         message: "请求超时",
         description: "请检查网络是否连接正常"
       });
@@ -60,16 +79,19 @@ const err = error => {
   return Promise.reject(error);
 };
 
-export default function(axios) {
+export default function interceptors(axios) {
   // Add a request interceptor
   axios.interceptors.request.use(function(config) {
     // Do something before request is sent
+
+    /*such as setting token header*/
+    // config.headers.token = "xxx";
+
     return config;
   }, err);
 
   // Add a response interceptor
   axios.interceptors.response.use(function(response) {
-    console.log(response);
     let { code, data, error } = response.data;
     if (code === 0) {
       return data;
