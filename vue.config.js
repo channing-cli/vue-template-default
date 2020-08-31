@@ -1,6 +1,11 @@
 const CompressionWebpackPlugin = require("compression-webpack-plugin");
 const proxy = require("./vue.config.proxy");
 const webpack = require("webpack");
+const path = require("path");
+
+function resolve(dir) {
+  return path.join(__dirname, dir);
+}
 
 module.exports = {
   lintOnSave: process.env.NODE_ENV !== "production",
@@ -10,7 +15,7 @@ module.exports = {
   runtimeCompiler: false,
 
   devServer: {
-    proxy: proxy
+    proxy
   },
   chainWebpack: config => {
     if (process.env.NODE_ENV === "production") {
@@ -18,6 +23,17 @@ module.exports = {
 
       imageOptimize(config);
     }
+
+    // 除非在IDE中配置对应的配置文件，否则虽然路径有效，但在coding时IDE会识别不了，不方便文件间的跳转操作。
+    // 所以用 '@/'的形式就已经很方便了，下面的可以不用
+    config.resolve.alias
+      .set("@$", resolve("src"))
+      .set("@apis", resolve("src/api"))
+      .set("@assets", resolve("src/assets"))
+      .set("@comp", resolve("src/components"))
+      .set("@views", resolve("src/views"))
+      .set("@layouts", resolve("src/layouts"))
+      .set("@services", resolve("src/services"));
   },
 
   configureWebpack: {

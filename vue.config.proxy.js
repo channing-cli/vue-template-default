@@ -1,6 +1,10 @@
 module.exports = {
   "/api": {
-    target: "http://localhost:3000",
-    changeOrigin: true
+    target: process.env.BACKEND || "http://localhost:3000",
+    changeOrigin: true,
+    ws: false
+    // pathRewrite: {
+    //   "^/api": ""
+    // }
   }
 };
